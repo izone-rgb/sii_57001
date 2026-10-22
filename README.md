@@ -1,44 +1,30 @@
-# Sistemas Informáticos Industriales
+# Sistemas Informáticos Industriales - Práctica 1
 
 ![UPM](https://img.shields.io/badge/UPM-ETSIDI-red)
 ![Curso](https://img.shields.io/badge/Curso-2026--2027-blue)
 ![Lenguaje](https://img.shields.io/badge/C-Programming-00599C?logo=c)
 ![Linux](https://img.shields.io/badge/Linux-Ubuntu-E95420?logo=ubuntu)
-![Git](https://img.shields.io/badge/Git-Version%20Control-F05032?logo=git)
 
-Material docente de la asignatura **Sistemas Informáticos Industriales** de la **Escuela Técnica Superior de Ingeniería y Diseño Industrial (ETSIDI)** de la **Universidad Politécnica de Madrid (UPM)**.
+## 📖 Descripción y Objetivo de la Práctica
 
----
+Este repositorio contiene la **Práctica 1** de la asignatura Sistemas Informáticos Industriales. 
 
-## 📖 Descripción
+El objetivo principal de esta práctica ha sido familiarizarse con el entorno de desarrollo bajo Linux, el control de versiones con Git/GitHub y la compilación de proyectos en C++ utilizando CMake y Make.
 
-Este repositorio contiene el material utilizado en las prácticas de la asignatura **Sistemas Informáticos Industriales**, incluyendo los guiones y el código de inicio.
+Como resultado práctico, hemos partido de un código estático en OpenGL y lo hemos convertido en un juego de tenis interactivo, aplicando conocimientos de física básica y programación orientada a objetos.
 
-El objetivo de la asignatura es introducir en el desarrollo de aplicaciones para sistemas informáticos industriales, haciendo especial énfasis en el uso del lenguaje C y del sistema operativo Linux.
+## 🛠️ Archivos modificados en esta sesión
 
----
+Para lograr la interactividad del juego, se han editado los siguientes ficheros fuente:
 
-## 📚 Wiki
+* **`Esfera.cpp`**: Se ha implementado la lógica dentro de la función `Mueve()` para que la pelota cambie su posición (`centro.x` y `centro.y`) en base a su velocidad y al tiempo transcurrido, logrando el movimiento continuo por la pantalla.
+* **`Raqueta.cpp`**: Se ha completado la función `Mueve()` para permitir el desplazamiento vertical (`y1` e `y2`) de las raquetas en respuesta a la interacción del usuario con el teclado.
+* **`.gitignore`**: Se ha creado este archivo para excluir el directorio de compilación (`workspace/build/`) del control de versiones.
 
-La documentación detallada de cada una de las prácticas se encuentra en la Wiki del repositorio.
+## 🎮 Controles del juego
 
-➡️ **Acceso a la Wiki:**  
-https://github.com/raquelcedazo/sistemas-informaticos-industriales/wiki
-
----
-
-## 🎓 Profesorado
-
-Asignatura impartida por el **Departamento de Ingeniería Eléctrica, Electrónica, Automática y Física Aplicada** de la **Universidad Politécnica de Madrid**:
-
-- **Raquel Cedazo** *(coordinadora de las prácticas)*
-- **David Álvarez**
-- **Imanol Izcara**
+* **Jugador 1 (Izquierda):** Teclas `W` (arriba) y `S` (abajo)
+* **Jugador 2 (Derecha):** Teclas `O` (arriba) y `L` (abajo)
 
 ---
-
-## 🤝 Contribuciones
-
-Este repositorio tiene finalidad exclusivamente docente.
-
-Si detectas algún error o tienes alguna sugerencia de mejora, puedes comunicarlo al profesorado de la asignatura.
+*Práctica realizada para la Escuela Técnica Superior de Ingeniería y Diseño Industrial (ETSIDI) - UPM.*
