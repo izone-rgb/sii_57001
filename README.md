@@ -1,25 +1,24 @@
-# Sistemas Informáticos Industriales - Práctica 1
+# Sistemas Informáticos Industriales - Prácticas 1 y 2
 
 ![UPM](https://img.shields.io/badge/UPM-ETSIDI-red)
 ![Curso](https://img.shields.io/badge/Curso-2026--2027-blue)
 ![Lenguaje](https://img.shields.io/badge/C-Programming-00599C?logo=c)
 ![Linux](https://img.shields.io/badge/Linux-Ubuntu-E95420?logo=ubuntu)
 
-## 📖 Descripción y Objetivo de la Práctica
+## 📖 Descripción y Objetivo de las Prácticas
 
-Este repositorio contiene la **Práctica 1** de la asignatura Sistemas Informáticos Industriales. 
+Este repositorio contiene el código de la asignatura Sistemas Informáticos Industriales. 
 
-El objetivo principal de esta práctica ha sido familiarizarse con el entorno de desarrollo bajo Linux, el control de versiones con Git/GitHub y la compilación de proyectos en C++ utilizando CMake y Make.
+* **Práctica 1:** Familiarización con el entorno Linux, Git/GitHub, y compilación en C++ con CMake/Make. Se implementó la física básica y el control por teclado para crear un juego de tenis interactivo basado en OpenGL.
+* **Práctica 2:** Implementación de un proceso de comunicación interprocesos (IPC) utilizando tuberías con nombre (FIFO). Se ha desarrollado un programa independiente (`logger`) que recibe y registra las puntuaciones del juego en tiempo real. Adicionalmente, el juego finaliza automáticamente cuando un jugador alcanza los 3 puntos.
 
-Como resultado práctico, hemos partido de un código estático en OpenGL y lo hemos convertido en un juego de tenis interactivo, aplicando conocimientos de física básica y programación orientada a objetos.
+## 🛠️ Archivos modificados
 
-## 🛠️ Archivos modificados en esta sesión
-
-Para lograr la interactividad del juego, se han editado los siguientes ficheros fuente:
-
-* **`Esfera.cpp`**: Se ha implementado la lógica dentro de la función `Mueve()` para que la pelota cambie su posición (`centro.x` y `centro.y`) en base a su velocidad y al tiempo transcurrido, logrando el movimiento continuo por la pantalla.
-* **`Raqueta.cpp`**: Se ha completado la función `Mueve()` para permitir el desplazamiento vertical (`y1` e `y2`) de las raquetas en respuesta a la interacción del usuario con el teclado.
-* **`.gitignore`**: Se ha creado este archivo para excluir el directorio de compilación (`workspace/build/`) del control de versiones.
+* **`Esfera.cpp` y `Raqueta.cpp`:** Lógica de movimiento en base a la velocidad, tiempo y entrada por teclado.
+* **`Mundo.cpp` y `Mundo.h`:** Gestión de la lógica del juego, apertura de la tubería FIFO en modo escritura, envío de los datos de puntuación mediante `write` y control de cierre al llegar a 3 puntos.
+* **`logger.cpp`:** Nuevo ejecutable que crea (`mkfifo`), abre en modo lectura y lee los mensajes enviados por el juego para mostrarlos por pantalla.
+* **`CMakeLists.txt`:** Actualizado para compilar simultáneamente el juego principal (`tenis`) y el nuevo programa `logger`.
+* **`.gitignore`:** Exclusión del directorio de compilación (`workspace/build/`).
 
 ## 🎮 Controles del juego
 

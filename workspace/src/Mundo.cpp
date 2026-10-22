@@ -10,6 +10,9 @@
 #include <string.h>
 #include <math.h>
 
+#include <unistd.h>
+#include <fcntl.h>
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -21,7 +24,7 @@ CMundo::CMundo()
 
 CMundo::~CMundo()
 {
-
+if(fd_logger >= 0) close(fd_logger);
 }
 
 void CMundo::InitGL()
@@ -34,6 +37,7 @@ void CMundo::InitGL()
 	
 	glMatrixMode(GL_PROJECTION);
 	gluPerspective( 40.0, 800/600.0f, 0.1, 150);
+	
 }
 
 void print(char *mensaje, int x, int y, float r, float g, float b)
@@ -135,6 +139,11 @@ void CMundo::OnTimer(int value)
 		esfera.velocidad.x=2+2*rand()/(float)RAND_MAX;
 		esfera.velocidad.y=2+2*rand()/(float)RAND_MAX;
 		puntos2++;
+		
+		char msg[100];
+		int len = sprintf(msg, "Jugador 2 marca 1 punto, lleva un total de %d puntos.\n", puntos2);
+		if(fd_logger >= 0) write(fd_logger, msg, len);
+		if(puntos2 >= 3) exit(0);
 	}
 
 	if(fondo_dcho.Rebota(esfera))
@@ -144,6 +153,11 @@ void CMundo::OnTimer(int value)
 		esfera.velocidad.x=-2-2*rand()/(float)RAND_MAX;
 		esfera.velocidad.y=-2-2*rand()/(float)RAND_MAX;
 		puntos1++;
+		
+		char msg[100];
+		int len = sprintf(msg, "Jugador 1 marca 1 punto, lleva un total de %d puntos.\n", puntos1);
+		if(fd_logger >= 0) write(fd_logger, msg, len);
+		if(puntos1 >= 3) exit(0);
 	}
 
 }
@@ -192,4 +206,6 @@ void CMundo::Init()
 	jugador2.g=0;
 	jugador2.x1=6;jugador2.y1=-1;
 	jugador2.x2=6;jugador2.y2=1;
+	
+	fd_logger = open("/tmp/fifo_tenis", O_WRONLY);
 }
