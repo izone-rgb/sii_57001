@@ -1,4 +1,4 @@
-# Sistemas Informáticos Industriales - Prácticas 1 y 2
+# Sistemas Informáticos Industriales - Prácticas 1, 2 y 3
 
 ![UPM](https://img.shields.io/badge/UPM-ETSIDI-red)
 ![Curso](https://img.shields.io/badge/Curso-2026--2027-blue)
@@ -11,18 +11,20 @@ Este repositorio contiene el código de la asignatura Sistemas Informáticos Ind
 
 * **Práctica 1:** Familiarización con el entorno Linux, Git/GitHub, y compilación en C++ con CMake/Make. Se implementó la física básica y el control por teclado para crear un juego de tenis interactivo basado en OpenGL.
 * **Práctica 2:** Implementación de un proceso de comunicación interprocesos (IPC) utilizando tuberías con nombre (FIFO). Se ha desarrollado un programa independiente (`logger`) que recibe y registra las puntuaciones del juego en tiempo real. Adicionalmente, el juego finaliza automáticamente cuando un jugador alcanza los 3 puntos.
+* **Práctica 3:** Implementación de comunicación interprocesos mediante memoria compartida (ficheros proyectados en memoria con `mmap`). Se ha creado un programa independiente (`bot`) que analiza la posición de la pelota y controla la raqueta izquierda de forma automática.
 
 ## 🛠️ Archivos modificados
 
-* **`Esfera.cpp` y `Raqueta.cpp`:** Lógica de movimiento en base a la velocidad, tiempo y entrada por teclado.
-* **`Mundo.cpp` y `Mundo.h`:** Gestión de la lógica del juego, apertura de la tubería FIFO en modo escritura, envío de los datos de puntuación mediante `write` y control de cierre al llegar a 3 puntos.
-* **`logger.cpp`:** Nuevo ejecutable que crea (`mkfifo`), abre en modo lectura y lee los mensajes enviados por el juego para mostrarlos por pantalla.
-* **`CMakeLists.txt`:** Actualizado para compilar simultáneamente el juego principal (`tenis`) y el nuevo programa `logger`.
+* **`Esfera.cpp` y `Raqueta.cpp`:** Lógica de movimiento original en base a la velocidad y entrada por teclado. Se ha añadido `#pragma once` en las cabeceras para evitar redefiniciones.
+* **`Mundo.cpp` y `Mundo.h`:** Gestión de la lógica del juego, apertura de tuberías (logger) y ficheros de memoria compartida. Sincronización continua de las coordenadas para la toma de decisiones.
+* **`logger.cpp`:** Ejecutable que recibe los mensajes de puntos a través de una tubería FIFO y los imprime.
+* **`bot.cpp` y `DatosMemCompartida.h`:** Nuevo ejecutable y estructura de datos que leen la posición de la esfera en memoria compartida para determinar automáticamente el movimiento de la raqueta.
+* **`CMakeLists.txt`:** Actualizado para compilar simultáneamente el juego principal (`tenis`), el `logger` y el `bot`.
 * **`.gitignore`:** Exclusión del directorio de compilación (`workspace/build/`).
 
 ## 🎮 Controles del juego
 
-* **Jugador 1 (Izquierda):** Teclas `W` (arriba) y `S` (abajo)
+* **Jugador 1 (Izquierda):** Controlado automáticamente por el Bot (Inteligencia Artificial).
 * **Jugador 2 (Derecha):** Teclas `O` (arriba) y `L` (abajo)
 
 ---

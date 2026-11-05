@@ -12,6 +12,7 @@
 
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/mman.h>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -119,6 +120,16 @@ void CMundo::OnDraw()
 
 void CMundo::OnTimer(int value)
 {	
+
+if(mem_comp != NULL) {
+		mem_comp->esfera = esfera;
+		mem_comp->raqueta1 = jugador1;
+		
+		if(mem_comp->accion == 1) jugador1.velocidad.y = 4;
+		else if(mem_comp->accion == -1) jugador1.velocidad.y = -4;
+		else jugador1.velocidad.y = 0;
+	}
+	
 	jugador1.Mueve(0.025f);
 	jugador2.Mueve(0.025f);
 	esfera.Mueve(0.025f);
@@ -208,4 +219,10 @@ void CMundo::Init()
 	jugador2.x2=6;jugador2.y2=1;
 	
 	fd_logger = open("/tmp/fifo_tenis", O_WRONLY);
+	
+	// Memoria compartida para el bot
+	int fd_shm = open("/tmp/shm_tenis", O_CREAT | O_RDWR, 0666);
+	ftruncate(fd_shm, sizeof(DatosMemCompartida));
+	mem_comp = (DatosMemCompartida*)mmap(NULL, sizeof(DatosMemCompartida), PROT_READ | PROT_WRITE, MAP_SHARED, fd_shm, 0);
+	close(fd_shm);
 }
