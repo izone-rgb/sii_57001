@@ -1,4 +1,4 @@
-# Sistemas Informáticos Industriales - Prácticas 1, 2 y 3
+# Sistemas Informáticos Industriales - Prácticas 1, 2, 3 y 4
 
 ![UPM](https://img.shields.io/badge/UPM-ETSIDI-red)
 ![Curso](https://img.shields.io/badge/Curso-2026--2027-blue)
@@ -10,22 +10,24 @@
 Este repositorio contiene el código de la asignatura Sistemas Informáticos Industriales. 
 
 * **Práctica 1:** Familiarización con el entorno Linux, Git/GitHub, y compilación en C++ con CMake/Make. Se implementó la física básica y el control por teclado para crear un juego de tenis interactivo basado en OpenGL.
-* **Práctica 2:** Implementación de un proceso de comunicación interprocesos (IPC) utilizando tuberías con nombre (FIFO). Se ha desarrollado un programa independiente (`logger`) que recibe y registra las puntuaciones del juego en tiempo real. Adicionalmente, el juego finaliza automáticamente cuando un jugador alcanza los 3 puntos.
-* **Práctica 3:** Implementación de comunicación interprocesos mediante memoria compartida (ficheros proyectados en memoria con `mmap`). Se ha creado un programa independiente (`bot`) que analiza la posición de la pelota y controla la raqueta izquierda de forma automática.
+* **Práctica 2:** Implementación de comunicación interprocesos (IPC) mediante tuberías con nombre (FIFO) con un programa independiente (`logger`) que registra las puntuaciones en tiempo real y finaliza la partida a los 3 puntos.
+* **Práctica 3:** Comunicación interprocesos mediante memoria compartida (`mmap`) con un programa independiente (`bot`) que analiza la posición de la pelota y controla la raqueta izquierda automáticamente.
+* **Práctica 4:** Arquitectura Cliente-Servidor y programación concurrente con hilos (`pthread`). El juego se ha dividido en dos procesos (`servidor` y `cliente`) que se comunican de forma bidireccional mediante dos tuberías FIFO (coordenadas y teclas). El servidor gestiona la física y el `logger`, mientras que el cliente captura el teclado y se comunica con el `bot`.
 
-## 🛠️ Archivos modificados
+## 🛠️ Archivos del proyecto
 
-* **`Esfera.cpp` y `Raqueta.cpp`:** Lógica de movimiento original en base a la velocidad y entrada por teclado. Se ha añadido `#pragma once` en las cabeceras para evitar redefiniciones.
-* **`Mundo.cpp` y `Mundo.h`:** Gestión de la lógica del juego, apertura de tuberías (logger) y ficheros de memoria compartida. Sincronización continua de las coordenadas para la toma de decisiones.
-* **`logger.cpp`:** Ejecutable que recibe los mensajes de puntos a través de una tubería FIFO y los imprime.
-* **`bot.cpp` y `DatosMemCompartida.h`:** Nuevo ejecutable y estructura de datos que leen la posición de la esfera en memoria compartida para determinar automáticamente el movimiento de la raqueta.
-* **`CMakeLists.txt`:** Actualizado para compilar simultáneamente el juego principal (`tenis`), el `logger` y el `bot`.
+* **`Esfera.cpp` y `Raqueta.cpp`:** Lógica de movimiento y colisiones.
+* **`servidor.cpp`, `MundoServidor.cpp` y `MundoServidor.h`:** Motor del juego. Envía coordenadas al cliente por FIFO, recibe teclas de forma concurrente mediante un hilo (`pthread`) y notifica los puntos al `logger`.
+* **`cliente.cpp`, `MundoCliente.cpp` y `MundoCliente.h`:** Interfaz de usuario. Recibe las coordenadas del servidor para dibujar la escena, envía las teclas pulsadas por FIFO y se sincroniza con el `bot` mediante memoria compartida.
+* **`logger.cpp`:** Registra y muestra por pantalla los puntos enviados por el servidor.
+* **`bot.cpp` y `DatosMemCompartida.h`:** Controla automáticamente la raqueta del Jugador 1 leyendo la memoria compartida del cliente.
+* **`CMakeLists.txt`:** Configurado para compilar `servidor` (enlazado con `pthread`), `cliente`, `logger` y `bot`.
 * **`.gitignore`:** Exclusión del directorio de compilación (`workspace/build/`).
 
 ## 🎮 Controles del juego
 
-* **Jugador 1 (Izquierda):** Controlado automáticamente por el Bot (Inteligencia Artificial).
-* **Jugador 2 (Derecha):** Teclas `O` (arriba) y `L` (abajo)
+* **Jugador 1 (Izquierda):** Controlado automáticamente por el Bot.
+* **Jugador 2 (Derecha):** Teclas `O` (arriba) y `L` (abajo) desde la ventana del Cliente.
 
 ---
 *Práctica realizada para la Escuela Técnica Superior de Ingeniería y Diseño Industrial (ETSIDI) - UPM.*

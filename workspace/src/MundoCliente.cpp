@@ -1,8 +1,5 @@
-// Mundo.cpp: implementation of the CMundo class.
-//
-//////////////////////////////////////////////////////////////////////
 #include <fstream>
-#include "Mundo.h"
+#include "MundoCliente.h"
 #include "glut.h"
 
 #include <stdlib.h>
@@ -13,10 +10,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
+#include <sys/types.h>
+#include <sys/stat.h>
 
 CMundo::CMundo()
 {
@@ -25,12 +20,13 @@ CMundo::CMundo()
 
 CMundo::~CMundo()
 {
-if(fd_logger >= 0) close(fd_logger);
+	if(fd_coords >= 0) close(fd_coords);
+	if(fd_teclas >= 0) close(fd_teclas);
+	unlink("/tmp/fifo_teclas");
 }
 
 void CMundo::InitGL()
 {
-	//Habilitamos las luces, la renderizacion y el color de los materiales
 	glEnable(GL_LIGHT0);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
@@ -38,7 +34,6 @@ void CMundo::InitGL()
 	
 	glMatrixMode(GL_PROJECTION);
 	gluPerspective( 40.0, 800/600.0f, 0.1, 150);
-	
 }
 
 void print(char *mensaje, int x, int y, float r, float g, float b)
@@ -78,22 +73,18 @@ void print(char *mensaje, int x, int y, float r, float g, float b)
 
 	glEnable( GL_DEPTH_TEST );
 }
+
 void CMundo::OnDraw()
 {
-	//Borrado de la pantalla	
    	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//Para definir el punto de vista
 	glMatrixMode(GL_MODELVIEW);	
 	glLoadIdentity();
 	
-	gluLookAt(0.0, 0, 17,  // posicion del ojo
-		0.0, 0.0, 0.0,      // hacia que punto mira  (0,0,0) 
-		0.0, 1.0, 0.0);      // definimos hacia arriba (eje Y)    
+	gluLookAt(0.0, 0, 17,
+		0.0, 0.0, 0.0,
+		0.0, 1.0, 0.0);
 
-	/////////////////
-	///////////
-	//		AQUI EMPIEZA MI DIBUJO
 	char cad[100];
 	sprintf(cad,"Jugador1: %d",puntos1);
 	print(cad,10,0,1,1,1);
@@ -109,93 +100,49 @@ void CMundo::OnDraw()
 	jugador2.Dibuja();
 	esfera.Dibuja();
 
-	/////////////////
-	///////////
-	//		AQUI TERMINA MI DIBUJO
-	////////////////////////////
-
-	//Al final, cambiar el buffer
 	glutSwapBuffers();
 }
 
 void CMundo::OnTimer(int value)
 {	
+	// Leer coordenadas enviadas por el servidor
+	char cad[200];
+	if(fd_coords >= 0) {
+		if(read(fd_coords, cad, sizeof(cad)) <= 0) exit(0);
+		sscanf(cad,"%f %f %f %f %f %f %f %f %f %f %d %d",
+			&esfera.centro.x, &esfera.centro.y,
+			&jugador1.x1, &jugador1.y1, &jugador1.x2, &jugador1.y2,
+			&jugador2.x1, &jugador2.y1, &jugador2.x2, &jugador2.y2,
+			&puntos1, &puntos2);
+	}
 
-if(mem_comp != NULL) {
+	// Comunicar con el bot mediante memoria compartida
+	if(mem_comp != NULL) {
 		mem_comp->esfera = esfera;
 		mem_comp->raqueta1 = jugador1;
 		
-		if(mem_comp->accion == 1) jugador1.velocidad.y = 4;
-		else if(mem_comp->accion == -1) jugador1.velocidad.y = -4;
-		else jugador1.velocidad.y = 0;
+		if(mem_comp->accion == 1) OnKeyboardDown('w', 0, 0);
+		else if(mem_comp->accion == -1) OnKeyboardDown('s', 0, 0);
 	}
-	
-	jugador1.Mueve(0.025f);
-	jugador2.Mueve(0.025f);
-	esfera.Mueve(0.025f);
-	int i;
-	for(i=0;i<paredes.size();i++)
-	{
-		paredes[i].Rebota(esfera);
-		paredes[i].Rebota(jugador1);
-		paredes[i].Rebota(jugador2);
-	}
-
-	jugador1.Rebota(esfera);
-	jugador2.Rebota(esfera);
-	if(fondo_izq.Rebota(esfera))
-	{
-		esfera.centro.x=0;
-		esfera.centro.y=rand()/(float)RAND_MAX;
-		esfera.velocidad.x=2+2*rand()/(float)RAND_MAX;
-		esfera.velocidad.y=2+2*rand()/(float)RAND_MAX;
-		puntos2++;
-		
-		char msg[100];
-		int len = sprintf(msg, "Jugador 2 marca 1 punto, lleva un total de %d puntos.\n", puntos2);
-		if(fd_logger >= 0) write(fd_logger, msg, len);
-		if(puntos2 >= 3) exit(0);
-	}
-
-	if(fondo_dcho.Rebota(esfera))
-	{
-		esfera.centro.x=0;
-		esfera.centro.y=rand()/(float)RAND_MAX;
-		esfera.velocidad.x=-2-2*rand()/(float)RAND_MAX;
-		esfera.velocidad.y=-2-2*rand()/(float)RAND_MAX;
-		puntos1++;
-		
-		char msg[100];
-		int len = sprintf(msg, "Jugador 1 marca 1 punto, lleva un total de %d puntos.\n", puntos1);
-		if(fd_logger >= 0) write(fd_logger, msg, len);
-		if(puntos1 >= 3) exit(0);
-	}
-
 }
 
 void CMundo::OnKeyboardDown(unsigned char key, int x, int y)
 {
-	switch(key)
-	{
-//	case 'a':jugador1.velocidad.x=-1;break;
-//	case 'd':jugador1.velocidad.x=1;break;
-	case 's':jugador1.velocidad.y=-4;break;
-	case 'w':jugador1.velocidad.y=4;break;
-	case 'l':jugador2.velocidad.y=-4;break;
-	case 'o':jugador2.velocidad.y=4;break;
-
-	}
+	char cad[100];
+	sprintf(cad, "%c", key);
+	if(fd_teclas >= 0) write(fd_teclas, cad, sizeof(cad));
 }
 
 void CMundo::Init()
 {
+	puntos1 = 0;
+	puntos2 = 0;
+
 	Plano p;
-//pared inferior
 	p.x1=-7;p.y1=-5;
 	p.x2=7;p.y2=-5;
 	paredes.push_back(p);
 
-//superior
 	p.x1=-7;p.y1=5;
 	p.x2=7;p.y2=5;
 	paredes.push_back(p);
@@ -208,18 +155,21 @@ void CMundo::Init()
 	fondo_dcho.x1=7;fondo_dcho.y1=-5;
 	fondo_dcho.x2=7;fondo_dcho.y2=5;
 
-	//a la izq
 	jugador1.g=0;
 	jugador1.x1=-6;jugador1.y1=-1;
 	jugador1.x2=-6;jugador1.y2=1;
 
-	//a la dcha
 	jugador2.g=0;
 	jugador2.x1=6;jugador2.y1=-1;
 	jugador2.x2=6;jugador2.y2=1;
-	
-	fd_logger = open("/tmp/fifo_tenis", O_WRONLY);
-	
+
+	// Crear FIFO de teclas antes de conectar con el servidor
+	unlink("/tmp/fifo_teclas");
+	mkfifo("/tmp/fifo_teclas", 0666);
+
+	fd_coords = open("/tmp/fifo_coords", O_RDONLY);
+	fd_teclas = open("/tmp/fifo_teclas", O_WRONLY);
+
 	// Memoria compartida para el bot
 	int fd_shm = open("/tmp/shm_tenis", O_CREAT | O_RDWR, 0666);
 	ftruncate(fd_shm, sizeof(DatosMemCompartida));
